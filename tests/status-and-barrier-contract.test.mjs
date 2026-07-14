@@ -1,0 +1,11 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+const game=fs.readFileSync(new URL('../src/core/Game.js',import.meta.url),'utf8');
+const barriers=fs.readFileSync(new URL('../src/systems/FungalBarrierSystem.js',import.meta.url),'utf8');
+const statuses=fs.readFileSync(new URL('../src/systems/StatusSystem.js',import.meta.url),'utf8');
+assert.match(game,/hitPlayer\(/,'Game must centralize damage feedback');
+assert.match(game,/contactCooldown=1/,'Crystal collision must receive contact cooldown');
+assert.match(barriers,/gapCenter/,'Fungal barriers must retain an explicit safe gap');
+assert.match(barriers,/trichoCharge/,'Trichoderma must consume a dedicated charge against fungal barriers');
+assert.match(statuses,/speedMultiplier/,'Status system must expose movement modifier');
+assert.doesNotMatch(game,/health\s*-=\s*dt/,'Health must not drain passively over time');
+console.log('status-and-barrier-contract: ok');

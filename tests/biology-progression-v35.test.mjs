@@ -1,0 +1,12 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+const player=fs.readFileSync(new URL('../src/entities/PlayerShip.js',import.meta.url),'utf8');
+const catalog=fs.readFileSync(new URL('../src/data/catalog.js',import.meta.url),'utf8');
+const weapon=fs.readFileSync(new URL('../src/systems/WeaponSystem.js',import.meta.url),'utf8');
+const renderer=fs.readFileSync(new URL('../src/rendering/Renderer.js',import.meta.url),'utf8');
+const game=fs.readFileSync(new URL('../src/core/Game.js',import.meta.url),'utf8');
+assert.match(player,/biofilmTimer/,'Bacillus shield must have a decay timer');
+assert.match(catalog,/rootLatcher/,'Root-attaching parasite must exist');
+assert.match(weapon,/rootLatcher/,'ISR pulse must affect root-attaching parasites');
+assert.match(game,/setZoom/,'Game must expose zoom controls');
+assert.match(renderer,/kind==='walker'/,'Micorrhiza walking hifa effect must be rendered');
+console.log('v3.5 contract: ok');

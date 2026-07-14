@@ -1,0 +1,14 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+const generator=fs.readFileSync(new URL('../src/generation/SegmentGenerator.js',import.meta.url),'utf8');
+const weapon=fs.readFileSync(new URL('../src/systems/WeaponSystem.js',import.meta.url),'utf8');
+const barrier=fs.readFileSync(new URL('../src/systems/FungalBarrierSystem.js',import.meta.url),'utf8');
+const game=fs.readFileSync(new URL('../src/core/Game.js',import.meta.url),'utf8');
+assert.match(generator,/\['bacillus','rhizobium'/,'Bacillus must be the first guaranteed microbe');
+assert.match(generator,/id===0\?lane\(3\)/,'Bacillus must use the central lane');
+assert.doesNotMatch(weapon,/modules\.rhizobium&&p\.nitrogen>=100/,'Rhizobium must not trigger a screen-clearing pulse');
+assert.match(weapon,/modules\.isr/,'ISR module must own the defensive pulse');
+assert.match(weapon,/trichoPressed/,'Q must activate Trichoderma');
+assert.doesNotMatch(barrier,/br\.health-=bullet\.damage/,'Bullets must not damage fungal barrier structure');
+assert.match(game,/evolveRoot\(/,'Nitrogen must evolve the root');
+assert.match(game,/RootGrowthSystem/,'Persistent root body system must exist');
+console.log('v3.4 biology/progression contract: ok');

@@ -1,0 +1,15 @@
+{
+  "name": "rizovetor-shooter-prototype",
+  "version": "0.3.5",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node tests/ui-method-shadowing.test.mjs && node tests/route-effect-contract.test.mjs && node tests/status-and-barrier-contract.test.mjs && node tests/biology-progression-v34.test.mjs && node tests/biology-progression-v35.test.mjs"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}

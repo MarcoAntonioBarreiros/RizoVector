@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="theme-color" content="#0a120d">
+  <title>RizoVetor — Raiz Viva v3.9 · cardume</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+<main id="app">
+  <canvas id="game" aria-label="RizoVetor, raiz viva crescendo na rizosfera"></canvas>
+
+  <button id="uiToggle" title="Ocultar/mostrar interface (H)" aria-label="Alternar interface">⊟ HUD</button>
+
+  <section id="startScreen" class="overlay visible">
+    <div class="panel intro-panel">
+      <div class="eyebrow">Beans for a Living Soil · Protótipo arcade v3.9 · cardume vivo</div>
+      <h1>RizoVetor</h1>
+      <p>
+        Agora a <b>ponta da raiz</b> deixa um corpo radicular mais espesso e ocre ao amadurecer. O biofilme de <i>Bacillus</i>
+        dura por tempo limitado e precisa ser renovado; barreiras fúngicas crescem organicamente como uma colonização viva,
+        enquanto <i>Trichoderma</i> e a rede micorrízica atacam esse avanço com hifas guiadas.
+      </p>
+      <div class="legend-grid">
+        <div><kbd>WASD</kbd><span>orientar a ponta radicular</span></div>
+        <div><kbd>Auto</kbd><span>disparo defensivo evolutivo</span></div>
+        <div><kbd>Espaço</kbd><span>superimpulso micorrízico</span></div>
+        <div><kbd>Shift</kbd><span>desvio / via lateral de Azospirillum</span></div>
+        <div><kbd>Q</kbd><span>micoparasitismo de Trichoderma</span></div>
+        <div><kbd>E</kbd><span>pulso ISR contra penalidades e parasitas aderentes</span></div>
+      </div>
+      <div class="visual-key">
+        <span class="beneficial-key">BACILLUS: biofilme temporário, precisa ser renovado</span>
+        <span class="hostile-key">BARRREIRA FÚNGICA: cresce em cena; só Q rompe a estrutura</span>
+      </div>
+      <button id="startButton" class="primary">Iniciar expedição</button>
+      <button id="helpButton">Explicar interações</button>
+    </div>
+  </section>
+
+  <section id="gameOverScreen" class="overlay">
+    <div class="panel result-panel">
+      <div class="eyebrow">Expedição encerrada</div>
+      <h2>Relatório da rizosfera</h2>
+      <div id="results" class="results"></div>
+      <button id="restartButton" class="primary">Nova expedição</button>
+    </div>
+  </section>
+
+  <aside class="hud top-left">
+    <div class="brand"><strong>RIZOVETOR</strong><span id="depthLabel">Profundidade: 0 m</span></div>
+    <div class="biome-card"><small>CAMADA ATUAL</small><strong id="biomeLabel">Rizosfera superficial</strong></div>
+    <div class="bar-block"><label>Vitalidade da raiz</label><div class="bar health"><i id="healthBar"></i></div><strong id="damageCause" class="damage-cause">Estável — sem drenagem automática</strong></div>
+    <div class="bar-block"><label>Biofilme de Bacillus</label><div class="bar shield"><i id="shieldBar"></i></div><strong id="biofilmInfo" class="sub-info">Biofilme inativo</strong></div>
+    <div class="bar-block nitrogen-block">
+      <label>Crescimento por nitrogênio</label>
+      <div class="bar nitrogen"><i id="nitrogenBar"></i></div>
+      <strong id="nitrogenReady">Raiz nível 0 — procure Rhizobium</strong>
+    </div>
+    <div id="statusList" class="status-list"><span class="status-empty">Nenhuma penalidade ativa</span></div>
+  </aside>
+
+  <aside class="hud top-right">
+    <div class="resources">
+      <div><span class="resource-dot p"></span><b id="phosphateValue">0</b><small>Fósforo</small></div>
+      <div><span class="resource-dot fe"></span><b id="ironValue">0</b><small>Ferro</small></div>
+      <div><span class="resource-dot c"></span><b id="carbonValue">0</b><small>Exsudatos</small></div>
+    </div>
+    <div id="moduleList" class="modules"></div>
+  </aside>
+
+  <div class="zoom-panel">
+    <button id="zoomOutButton">−</button>
+    <span id="zoomLabel">Zoom 1.00×</span>
+    <button id="zoomInButton">+</button>
+  </div>
+
+  <aside class="ability-strip">
+    <div id="mycoAbility" class="ability"><kbd>ESPAÇO</kbd><strong>Hifa</strong><span>não adquirida</span></div>
+    <div id="azoAbility" class="ability"><kbd>SHIFT</kbd><strong>Raiz lateral</strong><span>não adquirida</span></div>
+    <div id="trichoAbility" class="ability charged"><kbd>Q</kbd><strong>Trichoderma</strong><div class="mini-bar tricho"><i id="trichoBar"></i></div><span id="trichoReady">não adquirido</span></div>
+    <div id="isrAbility" class="ability charged"><kbd>E</kbd><strong>Resistência ISR</strong><div class="mini-bar isr"><i id="isrBar"></i></div><span id="isrReady">não adquirida</span></div>
+  </aside>
+
+  <div id="toast" class="toast"><strong id="toastTitle"></strong><span id="toastBody"></span></div>
+  <div id="centerPrompt" class="center-prompt"></div>
+  <div id="damageArrow" class="damage-arrow">▲</div>
+
+  <div class="mobile-controls" aria-hidden="true">
+    <button data-control="left">◀</button><button data-control="right">▶</button>
+    <button data-control="up">▲</button><button data-control="down">▼</button>
+    <button data-control="dash">HIFA</button><button data-control="root">RAIZ</button>
+    <button data-control="tricho">TRICHO</button><button data-control="special">ISR</button>
+  </div>
+</main>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

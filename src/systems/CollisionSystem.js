@@ -1,0 +1,1 @@
+export class CollisionSystem{static circleCircle(a,b){const dx=a.x-b.x,dy=a.y-b.y,r=(a.radius||0)+(b.radius||0);return dx*dx+dy*dy<=r*r}static rectCircle(rect,c){const x=Math.max(rect.x,Math.min(c.x,rect.x+rect.width)),y=Math.max(rect.y,Math.min(c.y,rect.y+rect.height)),dx=c.x-x,dy=c.y-y;return dx*dx+dy*dy<=c.radius*c.radius}}
