@@ -6,6 +6,13 @@ export class EnhancedRenderer extends Renderer{
   c.globalAlpha=alpha;if(p.blend==='add')c.globalCompositeOperation='lighter';
   if(p.kind==='tracer'){c.strokeStyle=p.color;c.lineWidth=1.8;c.beginPath();c.moveTo(p.x,p.y);c.lineTo(p.tx,p.ty);c.stroke()}
   else if(p.kind==='walker'){const prog=1-p.life/p.maxLife,x1=p.x+(p.tx-p.x)*Math.max(0,prog-.28),y1=p.y+(p.ty-p.y)*Math.max(0,prog-.28),x2=p.x+(p.tx-p.x)*prog,y2=p.y+(p.ty-p.y)*prog;c.strokeStyle=p.color;c.fillStyle=p.color;c.lineWidth=p.radius||2;c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.stroke();c.beginPath();c.arc(x2,y2,(p.radius||2)+1,0,TAU);c.fill()}
+  else if(p.kind==='beam'){
+   const prog=clamp((1-lr)/.34,0,1),dx=p.tx-p.x,dy=p.ty-p.y,d=Math.max(1,Math.hypot(dx,dy)),nx=-dy/d,ny=dx/d,curve=p.curve||0,cx=(p.x+p.tx)/2+nx*curve,cy=(p.y+p.ty)/2+ny*curve;
+   const point=u=>{const om=1-u;return{x:om*om*p.x+2*om*u*cx+u*u*p.tx,y:om*om*p.y+2*om*u*cy+u*u*p.ty}};
+   const stroke=(width,color,a)=>{c.save();c.globalAlpha=alpha*a;c.strokeStyle=color;c.lineWidth=width;c.lineCap='round';c.beginPath();c.moveTo(p.x,p.y);for(let i=1;i<=18;i++){const u=prog*i/18,q=point(u);c.lineTo(q.x,q.y)}c.stroke();c.restore()};
+   stroke((p.width||7)*3.2,p.color,.2);stroke((p.width||7)*1.55,p.color,.58);stroke(Math.max(1.4,(p.width||7)*.34),'rgba(255,255,255,.98)',1);
+   const head=point(prog),spr=this.spriteFor(p.color),hr=(p.width||7)*4.2;c.globalAlpha=alpha;c.drawImage(spr,head.x-hr,head.y-hr,hr*2,hr*2);c.fillStyle='#fff';c.beginPath();c.arc(head.x,head.y,Math.max(2,(p.width||7)*.38),0,TAU);c.fill()
+  }
   else if(p.kind==='ring'){c.globalAlpha=alpha;c.strokeStyle=p.color;c.lineWidth=3.2;c.beginPath();c.arc(p.x,p.y,p.radius,0,TAU);c.stroke()}
   else if(p.kind==='text'){c.globalCompositeOperation='source-over';c.fillStyle=p.color;c.font='800 16px Inter,system-ui';c.textAlign='center';c.fillText(p.text,p.x,p.y)}
   else{
