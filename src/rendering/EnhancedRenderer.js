@@ -1,6 +1,18 @@
 import{Renderer}from'./Renderer.js';
 const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export class EnhancedRenderer extends Renderer{
+ player(c,p){
+  if(this.game.player.channelActive){
+   const x=p.x+p.width/2,y=p.y+p.height/2,t=this.game.time,spr=this.spriteFor('#7fd2ff'),pulse=1+Math.sin(t*12)*.09,rr=58*pulse;
+   c.save();c.globalCompositeOperation='lighter';c.globalAlpha=.62;c.drawImage(spr,x-rr,y-rr,rr*2,rr*2);
+   for(let i=-3;i<=3;i++){const ox=i*9+Math.sin(t*8+i)*4,len=52+(i*i%3)*17+Math.sin(t*15+i)*9;c.strokeStyle=i%2?'rgba(204,238,255,.62)':'rgba(127,210,255,.46)';c.lineWidth=i===0?2.6:1.4;c.lineCap='round';c.beginPath();c.moveTo(x+ox,y+12);c.lineTo(x+ox*.72,y+len);c.stroke()}
+   c.restore()
+  }
+  super.player(c,p);
+  if(this.game.player.channelActive){
+   const x=p.x+p.width/2,y=p.y+p.height/2,t=this.game.time;c.save();c.globalCompositeOperation='lighter';c.strokeStyle='rgba(214,245,255,.78)';c.lineWidth=1.5;c.beginPath();c.ellipse(x,y,28+Math.sin(t*10)*3,38+Math.sin(t*12)*4,0,0,TAU);c.stroke();c.restore()
+  }
+ }
  particle(c,p){
   c.save();const lr=clamp(p.life/p.maxLife,0,1),birth=clamp((1-lr)/(p.birthFade??.035),0,1),fadeStart=p.fadeStart??.55,fade=lr>fadeStart?1:Math.pow(clamp(lr/fadeStart,0,1),p.fadePower??1),alpha=fade*birth*(p.alpha??1);
   c.globalAlpha=alpha;if(p.blend==='add')c.globalCompositeOperation='lighter';
