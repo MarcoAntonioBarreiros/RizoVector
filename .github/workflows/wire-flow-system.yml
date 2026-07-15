@@ -1,0 +1,79 @@
+name: Wire active flow system
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/wire-flow-system.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Connect flow system
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          game_path = Path('src/core/Game.js')
+          game = game_path.read_text()
+
+          replacements = [
+              (
+                  "import{EffectsSystem}from'../systems/EffectsSystem.js';\nimport{EnemySystem}from'../systems/EnemySystem.js';",
+                  "import{EffectsSystem}from'../systems/EffectsSystem.js';\nimport{FlowSystem}from'../systems/FlowSystem.js';\nimport{EnemySystem}from'../systems/EnemySystem.js';"
+              ),
+              (
+                  "this.effects=new EffectsSystem(this);this.status=new StatusSystem(this);",
+                  "this.effects=new EffectsSystem(this);this.flow=new FlowSystem(this);this.status=new StatusSystem(this);"
+              ),
+              (
+                  "this.segmentManager.reset();this.player.reset(innerWidth/2-20,innerHeight-125);this.rootGrowth.reset();",
+                  "this.segmentManager.reset();this.player.reset(innerWidth/2-20,innerHeight-125);this.rootGrowth.reset();this.flow.reset();"
+              ),
+              (
+                  "this.microbes.update(dt);this.enemySystem.update(dt);this.obstacleSystem.update(dt);",
+                  "this.microbes.update(dt);this.enemySystem.update(dt);this.flow.update(dt);this.obstacleSystem.update(dt);"
+              ),
+              (
+                  "this.pickups.forEachActive(o=>{o.y+=this.scrollSpeed*dt;if(o.y>innerHeight+60)this.pickups.release(o)})",
+                  "this.pickups.forEachActive(o=>{o.y+=this.scrollSpeed*dt*(o.kind==='microbe'?.08:.04);if(o.y>innerHeight+90||(o.flowAge>7&&o.y<-130))this.pickups.release(o)})"
+              ),
+          ]
+
+          for old, new in replacements:
+              if game.count(old) != 1:
+                  raise SystemExit(f'Expected exactly one Game.js match: {old[:70]}')
+              game = game.replace(old, new)
+          game_path.write_text(game)
+
+          renderer_path = Path('src/rendering/Renderer.js')
+          renderer = renderer_path.read_text()
+          old = "for(const s of g.segmentManager.segments)this.segment(c,s);this.rootBody(c);"
+          new = "for(const s of g.segmentManager.segments)this.segment(c,s);g.flow?.render(c,this.width,this.height);this.rootBody(c);"
+          if renderer.count(old) != 1:
+              raise SystemExit('Expected exactly one Renderer.js insertion point')
+          renderer_path.write_text(renderer.replace(old, new))
+          PY
+
+      - name: Validate JavaScript
+        run: |
+          node --check src/systems/FlowSystem.js
+          node --check src/core/Game.js
+          node --check src/rendering/Renderer.js
+
+      - name: Commit integration
+        run: |
+          rm .github/workflows/wire-flow-system.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Make rhizosphere flow and vertical movement visible"
+          git push origin HEAD:master
