@@ -31,18 +31,19 @@ export class FungalBarrierSystem{
  pathMetrics(nodes){const cum=[0];let total=0;for(let i=1;i<nodes.length;i++){total+=Math.hypot(nodes[i].x-nodes[i-1].x,nodes[i].dy-nodes[i-1].dy);cum.push(total)}return{cum,total}}
  static pointAt(nodes,cum,dist){for(let i=1;i<nodes.length;i++)if(cum[i]>=dist){const a=nodes[i-1],b=nodes[i],seg=cum[i]-cum[i-1]||1,u=(dist-cum[i-1])/seg;return{x:a.x+(b.x-a.x)*u,dy:a.dy+(b.dy-a.dy)*u}}const l=nodes[nodes.length-1];return{x:l.x,dy:l.dy}}
  activate(){
-  const p=this.game.player,level=p.modules.trichoderma||0;
-  if(!level){this.game.ui.center('MICOPARASITISMO — REQUER TRICHODERMA',1.6);return false}
-  if(p.trichoCharge<CONFIG.powers.trichoCost){this.game.ui.center('POTENCIAL MICOPARASÍTICO INSUFICIENTE',1.6);return false}
+  const g=this.game,p=g.player,level=p.modules.trichoderma||0;
+  if(!level){g.ui.center('MICOPARASITISMO — REQUER TRICHODERMA',1.6);return false}
+  if(p.trichoCharge<CONFIG.powers.trichoCost){g.ui.center('POTENCIAL MICOPARASÍTICO INSUFICIENTE',1.6);return false}
   let target=null,best=1e9;
-  this.game.barriers.forEachActive(b=>{const d=Math.abs(b.y-(p.y+p.height/2));if(d<best&&d<470){best=d;target=b}});
-  if(!target){this.game.ui.center('NENHUMA BARREIRA AO ALCANCE',1.4);return false}
+  g.barriers.forEachActive(b=>{const d=Math.abs(b.y-(p.y+p.height/2));if(d<best&&d<470){best=d;target=b}});
+  if(!target){g.ui.center('NENHUMA BARREIRA AO ALCANCE',1.4);return false}
   const candidates=target.branches.filter(br=>!br.cleared).sort((a,b)=>Math.abs((a.x0+a.x1)/2-(p.x+p.width/2))-Math.abs((b.x0+b.x1)/2-(p.x+p.width/2))).slice(0,Math.min(5,2+level));
   if(!candidates.length)return false;
-  p.trichoCharge-=CONFIG.powers.trichoCost;target.trichoTimer=3.1;target.announced=true
+  p.trichoCharge-=CONFIG.powers.trichoCost;target.trichoTimer=3.1;target.announced=true;
   for(const br of target.branches)br.trichoMarked=false;for(const br of candidates)br.trichoMarked=true;
-  this.game.effects.ring(p.x+p.width/2,p.y,'#8df0a8',125,.42);this.game.audio.tricho(p.x+p.width/2);this.game.addShake(4);
-  this.game.ui.toast('Micoparasitismo ativado','Hifas verdes reconhecem, caminham e degradam as ramificações marcadas. Tiros comuns não rompem a parede estrutural.',4.8);
+  const sx=p.x+p.width/2,sy=p.y+p.height*.22,impactPoints=candidates.map(br=>({x:(br.x0+br.x1)/2,y:target.y+br.offset}));
+  g.effects.trichoLance(sx,sy,impactPoints);g.audio.tricho(sx);g.addShake(9);g.addHitStop(.09);
+  g.ui.toast('Micoparasitismo ativado','Um feixe micoparasítico trava nas hifas marcadas, perfura a parede estrutural e mantém a degradação enzimática por alguns segundos.',4.8);
   return true
  }
  update(dt){
@@ -59,7 +60,7 @@ export class FungalBarrierSystem{
    if(b.trichoTimer>0){
     for(const br of b.branches){
      if(!br.trichoMarked||br.cleared)continue;br.health-=dt*(3.4+(p.modules.trichoderma||1)*1.25);
-     if(Math.random()<dt*18){const targetX=(br.x0+br.x1)/2,targetY=b.y+br.offset;this.game.effects.walkingTracer(p.x+p.width/2,p.y+p.height*.25,targetX,targetY,'#8df0a8',2.2,.46)}
+     if(Math.random()<dt*12){const targetX=(br.x0+br.x1)/2,targetY=b.y+br.offset;this.game.effects.walkingTracer(p.x+p.width/2,p.y+p.height*.25,targetX,targetY,'#8df0a8',2.5,.62)}
      if(br.health<=0){br.cleared=true;br.trichoMarked=false;this.game.effects.hyphaBreak((br.x0+br.x1)/2,b.y+br.offset);p.score+=16;p.trichoCharge=Math.min(100,p.trichoCharge+5)}
     }
    }else for(const br of b.branches)br.trichoMarked=false;
