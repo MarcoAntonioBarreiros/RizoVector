@@ -23,7 +23,7 @@ export class WeaponSystem{
   if(p.isrCharge<CONFIG.powers.isrCost){g.ui.center('RESISTÊNCIA INDUZIDA AINDA NÃO PREPARADA',1.6);return}
   p.isrCharge=0;p.resistanceTimer=CONFIG.powers.isrDuration;p.invulnerability=Math.max(p.invulnerability,1.15);
   const projectilePoints=[];g.enemyProjectiles.forEachActive(b=>projectilePoints.push({x:b.x,y:b.y}));
-  const targets=[];g.enemies.forEachActive(e=>targets.push({x:e.x,y:e.y,type:e.type,color:e.color}));
+  const targets=[];g.enemies.forEachActive(e=>{if(targets.length<48)targets.push({x:e.x,y:e.y,type:e.type,color:e.color})});
   g.status.reset();g.enemyProjectiles.clear();g.screenFlash=1;
   g.effects.isrSpectacle(p.x+p.width/2,p.y+p.height/2,targets,projectilePoints);
   g.enemies.forEachActive(e=>{if(e.type==='rootLatcher'||e.type==='spore'||e.health<=3){p.score+=e.score;g.enemies.release(e)}else{e.health-=4;e.armor=Math.max(0,(e.armor||0)-28)}});
