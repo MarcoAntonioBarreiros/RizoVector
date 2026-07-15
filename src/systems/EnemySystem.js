@@ -21,7 +21,7 @@ export class EnemySystem{
    const profile=PROFILES[e.type]||PROFILES.ironArmored,response=profile.response||3;
    e.steerVX=(e.steerVX||0)+((e.desiredVX||0)-(e.steerVX||0))*Math.min(1,dt*response);
    e.steerVY=(e.steerVY||0)+((e.desiredVY||0)-(e.steerVY||0))*Math.min(1,dt*response);
-   const base=g.scrollSpeed+e.speed;
+   const base=g.scrollSpeed*.32+e.speed*.28;
    if(e.type==='spore'){
     e.y+=base*dt+Math.sin(t*1.8+e.phase)*8*dt+(e.steerVY||0)*dt*.32;
     e.x+=(Math.sin(t*3+e.phase)*54+Math.cos(t*1.35+e.phase*1.7)*26+(e.steerVX||0))*dt;
@@ -69,11 +69,11 @@ export class EnemySystem{
   if(e.x<82)x+=(82-e.x)/82;else if(e.x>innerWidth-82)x-=(e.x-(innerWidth-82))/82;return{x,y}
  }
  updateRootLatcher(e,dt){
-  const g=this.game,p=g.player,pts=g.rootGrowth.points;if(!pts.length){e.y+=(g.scrollSpeed+e.speed)*dt;return}
+  const g=this.game,p=g.player,pts=g.rootGrowth.points;if(!pts.length){e.y+=(g.scrollSpeed*.34+e.speed*.35)*dt;return}
   if(e.attached){const idx=Math.min(pts.length-1,e.anchorIndex||0),anchor=pts[idx];if(!anchor){g.enemies.release(e);return}e.x=anchor.x+Math.cos(g.time*7+e.phase)*3;e.y=anchor.y+Math.sin(g.time*6+e.phase)*3;e.drainTick=(e.drainTick||.45)-dt;if(e.drainTick<=0){e.drainTick=.65;p.carbon=Math.max(0,p.carbon-1);if(p.shield>0)p.shield=Math.max(0,p.shield-3);else p.health=Math.max(0,p.health-1);g.effects.resourceDrain(e.x,e.y,'#c4f36a');g.ui.damage('parasita aderido à raiz',1,Math.atan2(e.y-(p.y+p.height/2),e.x-(p.x+p.width/2)));if(p.health<=0)p.alive=false}return}
   let bestIdx=-1,best=1e9;for(let i=0;i<pts.length-18;i+=3){const pt=pts[i],d=Math.hypot(pt.x-e.x,pt.y-e.y);if(d<best){best=d;bestIdx=i}}
   if(bestIdx>=0&&best<210){const pt=pts[bestIdx],dx=pt.x-e.x,dy=pt.y-e.y,d=Math.max(1,Math.hypot(dx,dy));e.x+=dx/d*dt*132;e.y+=dy/d*dt*132;if(d<18){e.attached=true;e.anchorIndex=bestIdx;e.drainTick=.55;g.effects.ring(e.x,e.y,'#c4f36a',38,.28);return}}
-  else{const dx=p.x+p.width/2-e.x;e.x+=Math.sign(dx)*30*dt;e.y+=(g.scrollSpeed+e.speed*.6)*dt}if(e.y>innerHeight+100)g.enemies.release(e)
+  else{const dx=p.x+p.width/2-e.x;e.x+=Math.sign(dx)*30*dt;e.y+=(g.scrollSpeed*.30+e.speed*.32)*dt}if(e.y>innerHeight+100)g.enemies.release(e)
  }
  fire(e,vx,vy,color,kind){this.game.enemyProjectiles.acquire({x:e.x,y:e.y,vx,vy,radius:kind==='toxin'?5.5:kind==='iron'?5:4,color,kind,sourceType:e.type,life:4})}
 }
