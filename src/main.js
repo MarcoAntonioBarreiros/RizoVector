@@ -1,5 +1,5 @@
-import{InputManager}from'./core/InputManager.js';import{Game}from'./core/Game.js';import{GameLoop}from'./core/GameLoop.js';import{Renderer}from'./rendering/Renderer.js';
-const canvas=document.getElementById('game'),input=new InputManager,game=new Game(canvas,input),renderer=new Renderer(game,canvas),loop=new GameLoop(dt=>game.update(dt),()=>renderer.render());
+import{InputManager}from'./core/InputManager.js';import{Game}from'./core/Game.js';import{GameLoop}from'./core/GameLoop.js';import{EnhancedRenderer}from'./rendering/EnhancedRenderer.js';
+const canvas=document.getElementById('game'),input=new InputManager,game=new Game(canvas,input),renderer=new EnhancedRenderer(game,canvas),loop=new GameLoop(dt=>game.update(dt),()=>renderer.render());
 function startGame({silent=false}={}){document.getElementById('startScreen').classList.remove('visible');document.getElementById('gameOverScreen').classList.remove('visible');if(!silent)game.audio.ensure();game.start()}
 document.getElementById('startButton').addEventListener('click',()=>startGame());document.getElementById('restartButton').addEventListener('click',()=>startGame());
 document.getElementById('zoomOutButton').addEventListener('click',()=>game.setZoom(-.08));document.getElementById('zoomInButton').addEventListener('click',()=>game.setZoom(.08));
