@@ -16,7 +16,6 @@ export class AudioEngine{
  get now(){return this.context.currentTime}
  noiseBuffer(){if(this._noise)return this._noise;const c=this.context,len=c.sampleRate|0,buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);let last=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;last=(last+.02*w)/1.02;d[i]=w*.4+last*.85}return this._noise=buf}
  panner(x){const c=this.context;if(typeof x!=='number'||!c.createStereoPanner)return null;const p=c.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,(x/innerWidth)*2-1));return p}
- // Voz tonal com ataque/decaimento exponencial e glide opcional de frequência.
  blip(freq,{type='sine',dur=.12,gain=.05,glide=0,delay=0,pan=null,attack=.005}={}){
   this.ensure();if(!this.context)return;const c=this.context,t=this.now+delay,o=c.createOscillator(),g=c.createGain();
   o.type=type;o.frequency.setValueAtTime(freq,t);if(glide)o.frequency.exponentialRampToValueAtTime(Math.max(20,freq*glide),t+dur);
@@ -24,7 +23,6 @@ export class AudioEngine{
   o.connect(g);const pn=this.panner(pan);if(pn){g.connect(pn);pn.connect(this.master)}else g.connect(this.master);
   o.start(t);o.stop(t+dur+.03)
  }
- // Textura percussiva de ruído filtrado (impactos, dissolução, sopros orgânicos).
  burstNoise({dur=.12,gain=.06,freq=1200,q=1,type='bandpass',glide=0,pan=null}={}){
   this.ensure();if(!this.context)return;const c=this.context,t=this.now,src=c.createBufferSource();src.buffer=this.noiseBuffer();
   const f=c.createBiquadFilter();f.type=type;f.frequency.setValueAtTime(freq,t);if(glide)f.frequency.exponentialRampToValueAtTime(Math.max(60,freq*glide),t+dur);f.Q.value=q;
@@ -32,8 +30,7 @@ export class AudioEngine{
   src.connect(f).connect(g);const pn=this.panner(pan);if(pn){g.connect(pn);pn.connect(this.master)}else g.connect(this.master);
   src.start(t);src.stop(t+dur+.03)
  }
- tone(freq,dur=.08,type='sine',gain=.02){this.blip(freq,{type,dur,gain})} // compat
- // Eventos nomeados
+ tone(freq,dur=.08,type='sine',gain=.02){this.blip(freq,{type,dur,gain})}
  shoot(x){this.blip(720+Math.random()*90,{type:'square',dur:.05,gain:.011,glide:.55,pan:x})}
  enemyHit(x){this.burstNoise({dur:.06,gain:.045,freq:2300,q:.8,glide:.5,pan:x})}
  enemyDeath(type,x){const fungal=type==='spore'||type==='fungalHypha';
@@ -47,10 +44,15 @@ export class AudioEngine{
  hypha(x){this.burstNoise({dur:.18,gain:.06,freq:900,q:1.5,glide:.25,pan:x});this.blip(240,{type:'sawtooth',dur:.14,gain:.03,glide:.4,pan:x})}
  dash(){this.burstNoise({dur:.26,gain:.05,freq:380,q:.7,glide:6,type:'bandpass'})}
  whoosh(x){this.burstNoise({dur:.22,gain:.045,freq:520,q:.6,glide:4,pan:x})}
+ channelRush(x){
+  this.burstNoise({dur:.5,gain:.085,freq:260,q:.45,glide:8,type:'bandpass',pan:x});
+  this.burstNoise({dur:.34,gain:.046,freq:2400,q:.7,glide:.22,type:'highpass',pan:x});
+  this.blip(92,{type:'sine',dur:.42,gain:.038,glide:2.8,pan:x,attack:.015})
+ }
+ channelWind(x){this.burstNoise({dur:.18,gain:.018,freq:720,q:.5,glide:1.7,type:'bandpass',pan:x})}
  isr(){[0,7,12].forEach((s,i)=>this.blip(392*2**(s/12),{type:'sine',dur:.6,gain:.045,delay:i*.05}));this.burstNoise({dur:.5,gain:.04,freq:1200,q:.5,glide:5})}
  tricho(x){this.blip(300,{type:'triangle',dur:.3,gain:.038,glide:1.6,pan:x});this.burstNoise({dur:.25,gain:.038,freq:1500,q:1.2,glide:.4,pan:x})}
  heartbeat(){this.blip(60,{type:'sine',dur:.16,gain:.06});this.blip(55,{type:'sine',dur:.2,gain:.05,delay:.2})}
- // Leito ambiente contínuo
  startAmbient(){
   const c=this.context;if(!c||this.ambient)return;
   const bus=c.createGain();bus.gain.value=0;bus.connect(this.master);
@@ -60,8 +62,6 @@ export class AudioEngine{
   const dread=c.createOscillator(),dreadG=c.createGain();dread.type='sawtooth';dread.frequency.value=58.3;dreadG.gain.value=0;dread.connect(dreadG).connect(lp);dread.start();
   this.ambient={bus,voices,dreadG};if(this._active)bus.gain.linearRampToValueAtTime(.22,c.currentTime+3);
  }
- // Liga/desliga o leito ambiente e suspende o contexto quando o jogo não está ativo
- // (evita o drone continuar zumbindo no game over ou com a aba oculta).
  setActive(on){
   this._active=on;if(!this.context)return;const c=this.context;
   if(this.ambient)this.ambient.bus.gain.setTargetAtTime(on?.22:0,c.currentTime,.35);
