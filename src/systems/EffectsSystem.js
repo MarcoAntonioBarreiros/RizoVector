@@ -28,6 +28,45 @@ export class EffectsSystem{
  crystalDissolve(x,y){this.game.audio?.crystal(x);this.ring(x,y,'#ffd173',125,.72);this.emit('shatter',x,y,'#ffd173',30,{priority:'critical',pattern:'radial',speedScale:1.22,splitPreset:'shatter',splitCount:3,splitAt:.55,splitSize:.3,splitSpeed:.68});this.smoke(x,y,'#ffe3a1',6)}
  hyphaBreak(x,y){this.game.audio?.hypha(x);this.ring(x,y,'#8df0a8',86,.62);this.emit('filament',x,y,'#8df0a8',34,{priority:'critical',pattern:'radial',speedScale:1.12});this.smoke(x,y,'#d85d9d',5)}
  enemyEmission(x,y,color,count=2){this.emit('spore',x,y,color,Math.max(1,count),{priority:'ambient',speedScale:.42,lifeScale:.82,pattern:'cloud',originSpread:10,blend:null,alpha:.68})}
+ enemyDeath(type,x,y,color,radius=18){
+  const scale=radius>20?1.18:1;
+  if(type==='spore')this.emit('spore',x,y,color,24,{priority:'critical',pattern:'cloud',originSpread:14,speedScale:1.35,sizeScale:scale});
+  else if(type==='fungalHypha')this.emit('filament',x,y,color,34,{priority:'critical',pattern:'radial',speedScale:1.18,sizeScale:scale});
+  else if(type==='oomycete')this.emit('vortex',x,y,color,26,{priority:'critical',pattern:'vortex',ringRadius:16,vortexDirection:1,speedScale:1.16,sizeScale:scale});
+  else if(type==='nematode')this.emit('spiral',x,y,color,20,{priority:'critical',pattern:'vortex',ringRadius:10,vortexDirection:-1,speedScale:1.2,sizeScale:scale});
+  else if(type==='bacterialColony')this.emit('bloom',x,y,color,30,{priority:'critical',pattern:'ring',ringRadius:12,speedScale:1.15,sizeScale:scale});
+  else if(type==='ironArmored')this.emit('shatter',x,y,color,28,{priority:'critical',pattern:'radial',speedScale:1.28,sizeScale:scale,splitPreset:'shatter',splitCount:3,splitAt:.56,splitSize:.3,splitSpeed:.7});
+  else if(type==='rootLatcher')this.emit('filament',x,y,color,22,{priority:'critical',pattern:'fan',angle:-Math.PI/2,spread:Math.PI*1.35,speedScale:1.12,sizeScale:scale});
+  else this.emit('spark',x,y,color,26,{priority:'critical',pattern:'radial',speedScale:1.2,sizeScale:scale});
+  this.ring(x,y,color,52+radius*1.7,.48)
+ }
+ pickupBurst(kind,type,x,y,color){
+  if(kind==='resource'){
+   if(type==='phosphate')this.emit('shatter',x,y,color,18,{priority:'normal',pattern:'radial',speedScale:.9,sizeScale:.72});
+   else if(type==='nitrogen')this.emit('spiral',x,y,color,14,{priority:'normal',pattern:'vortex',ringRadius:7,vortexDirection:1,speedScale:.72,sizeScale:.7});
+   else if(type==='carbon')this.emit('bloom',x,y,color,18,{priority:'normal',pattern:'ring',ringRadius:7,speedScale:.7,sizeScale:.78});
+   else this.emit('spark',x,y,color,18,{priority:'normal',pattern:'radial',speedScale:.9,sizeScale:.72});
+   return
+  }
+  const style={
+   bacillus:['bloom','ring'],rhizobium:['spiral','vortex'],mycorrhiza:['filament','radial'],azospirillum:['vortex','vortex'],
+   pgpb:['shatter','radial'],pseudomonas:['spark','radial'],isr:['bloom','ring'],trichoderma:['spiral','vortex']
+  }[type]||['spark','radial'],[preset,pattern]=style;
+  this.emit(preset,x,y,color,preset==='spiral'?16:20,{priority:'normal',pattern,ringRadius:8,vortexDirection:type==='trichoderma'?-1:1,speedScale:.82,sizeScale:.78});
+  this.ring(x,y,color,58,.42)
+ }
+ channelBoost(x,y){
+  const palette=['#7fd2ff','#cceeff','#86efad','#efffff'];
+  this.ring(x,y,'#7fd2ff',145,.64);
+  this.emit('vortex',x,y,'#7fd2ff',26,{priority:'critical',pattern:'vortex',ringRadius:18,vortexDirection:1,speedScale:1.15,palette});
+  this.emit('spark',x,y+12,'#cceeff',46,{priority:'critical',pattern:'fan',angle:Math.PI/2,spread:.44,speedScale:1.55,palette});
+  this.emit('bloom',x,y,'#7fd2ff',16,{priority:'critical',pattern:'ring',ringRadius:10,speedScale:.72,palette})
+ }
+ channelTrail(x,y){
+  const palette=['#7fd2ff','#cceeff','#efffff'];
+  this.emit('spark',x,y+18,'#7fd2ff',3,{priority:'ambient',pattern:'fan',angle:Math.PI/2,spread:.25,speedScale:1.42,sizeScale:.72,lifeScale:.7,palette});
+  if(Math.random()<.38)this.emit('bloom',x,y+8,'#7fd2ff',1,{priority:'ambient',pattern:'cloud',originSpread:12,speedScale:.18,sizeScale:.62,lifeScale:.5,palette})
+ }
  isrSpectacle(cx,cy,targets=[],projectiles=[]){
   const palette=['#d9ef88','#efffc4','#86efad','#7fd2ff'];
   this.ring(cx,cy,'#d9ef88',Math.max(innerWidth,innerHeight)*.95,.95);
