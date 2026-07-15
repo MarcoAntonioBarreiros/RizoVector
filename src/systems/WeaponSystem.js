@@ -18,14 +18,16 @@ export class WeaponSystem{
   if(this.game.input.specialPressed)this.activateISR();
  }
  activateISR(){
-  const p=this.game.player;
-  if(!p.modules.isr){this.game.ui.center('RESISTÊNCIA INDUZIDA — REQUER PGPB ISR',1.6);return}
-  if(p.isrCharge<CONFIG.powers.isrCost){this.game.ui.center('RESISTÊNCIA INDUZIDA AINDA NÃO PREPARADA',1.6);return}
+  const g=this.game,p=g.player;
+  if(!p.modules.isr){g.ui.center('RESISTÊNCIA INDUZIDA — REQUER PGPB ISR',1.6);return}
+  if(p.isrCharge<CONFIG.powers.isrCost){g.ui.center('RESISTÊNCIA INDUZIDA AINDA NÃO PREPARADA',1.6);return}
   p.isrCharge=0;p.resistanceTimer=CONFIG.powers.isrDuration;p.invulnerability=Math.max(p.invulnerability,1.15);
-  this.game.status.reset();this.game.enemyProjectiles.clear();this.game.screenFlash=1;
-  this.game.effects.ring(p.x+p.width/2,p.y,'#d9ef88',Math.max(innerWidth,innerHeight),.72);
-  this.game.enemies.forEachActive(e=>{if(e.type==='rootLatcher'||e.type==='spore'||e.health<=3){p.score+=e.score;this.game.effects.burst(e.x,e.y,'#d9ef88',22,220);this.game.enemies.release(e)}else{e.health-=4;e.armor=Math.max(0,(e.armor||0)-28);this.game.effects.ring(e.x,e.y,'#d9ef88',55,.28)}});
-  this.game.ui.toast('Resistência sistêmica induzida','Penalidades, projéteis e parasitas aderidos foram removidos; ameaças pequenas foram neutralizadas e a raiz recebeu resistência temporária.',5);
-  this.game.audio.isr();this.game.addShake(10);this.game.addHitStop(.06);
+  const projectilePoints=[];g.enemyProjectiles.forEachActive(b=>projectilePoints.push({x:b.x,y:b.y}));
+  const targets=[];g.enemies.forEachActive(e=>targets.push({x:e.x,y:e.y,type:e.type,color:e.color}));
+  g.status.reset();g.enemyProjectiles.clear();g.screenFlash=1;
+  g.effects.isrSpectacle(p.x+p.width/2,p.y+p.height/2,targets,projectilePoints);
+  g.enemies.forEachActive(e=>{if(e.type==='rootLatcher'||e.type==='spore'||e.health<=3){p.score+=e.score;g.enemies.release(e)}else{e.health-=4;e.armor=Math.max(0,(e.armor||0)-28)}});
+  g.ui.toast('Resistência sistêmica induzida','Uma onda sistêmica percorreu toda a rizosfera: projéteis e parasitas foram eliminados, ameaças pequenas neutralizadas e a raiz recebeu resistência temporária.',5);
+  g.audio.isr();g.addShake(16);g.addHitStop(.12);
  }
 }
