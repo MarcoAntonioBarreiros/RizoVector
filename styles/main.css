@@ -45,4 +45,4 @@ button{border:1px solid #ffffff18;border-radius:13px;padding:11px 15px;margin:5p
 /* Botão de liga/desliga da interface (declutter) */
 #uiToggle{position:fixed;z-index:40;top:10px;left:50%;transform:translateX(-50%);margin:0;padding:6px 13px;border-radius:999px;font:800 10px Inter,system-ui;letter-spacing:.08em;color:#bfe9d2;background:rgba(4,16,12,.72);border:1px solid #8cdcb440;backdrop-filter:blur(8px);box-shadow:0 8px 24px #0006}
 #uiToggle:hover{color:#eafff4;border-color:#8cdcb480;transform:translateX(-50%) translateY(-1px)}
-#app.ui-hidden .hud,#app.ui-hidden .ability-strip,#app.ui-hidden .zoom-panel,#app.ui-hidden .mobile-controls{display:none!important}
+#app.ui-hidden .hud,#app.ui-hidden .ability-strip,#app.ui-hidden .zoom-panel{display:none!important}
