@@ -43,9 +43,9 @@ export class EnemySystem{
    }else{
     e.y+=(base*.72+(e.steerVY||0)*.35)*dt;e.x+=(Math.sin(t*.55+e.phase)*20+Math.cos(t*1.1+e.phase)*14+(e.steerVX||0))*dt;e.rock=Math.sin(t*1.4+e.phase);if(e.cooldown<=0){e.cooldown=1.65*relief;for(const dx of[-68,0,68])this.fire(e,dx,145,'#ffad67','iron')}
    }
-   e.x=clamp(e.x,18,innerWidth-18);e.vx=(e.x-ox)/Math.max(dt,1e-4);e.vy=(e.y-oy)/Math.max(dt,1e-4);if(e.y>innerHeight+100)g.enemies.release(e)
+   e.x=clamp(e.x,18,g.worldWidth-18);e.vx=(e.x-ox)/Math.max(dt,1e-4);e.vy=(e.y-oy)/Math.max(dt,1e-4);if(e.y>g.viewportHeight+100)g.enemies.release(e)
   }
-  g.enemyProjectiles.forEachActive(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life<=0||b.y>innerHeight+50||b.x<-50||b.x>innerWidth+50)g.enemyProjectiles.release(b)})
+  g.enemyProjectiles.forEachActive(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.life<=0||b.y>g.viewportHeight+50||b.x<-50||b.x>g.worldWidth+50)g.enemyProjectiles.release(b)})
  }
  refreshSteering(e,peers){
   const g=this.game,profile=PROFILES[e.type]||PROFILES.ironArmored;let cx=0,cy=0,avx=0,avy=0,count=0,sx=0,sy=0;
@@ -66,14 +66,14 @@ export class EnemySystem{
   const g=this.game;let x=0,y=0;
   g.obstacles.forEachActive(o=>{const dx=e.x-o.x,dy=e.y-o.y,d=Math.hypot(dx,dy),r=(o.radius||25)+82;if(d>0&&d<r){const f=(r-d)/r;x+=dx/d*f;y+=dy/d*f}});
   g.barriers.forEachActive(b=>{const dy=e.y-b.y;if(Math.abs(dy)>105||Math.abs(e.x-b.gapCenter)<b.gapWidth*.5)return;const f=1-Math.abs(dy)/105;x+=Math.sign(b.gapCenter-e.x)*f*1.4;y-=Math.sign(dy||1)*f*.25});
-  if(e.x<82)x+=(82-e.x)/82;else if(e.x>innerWidth-82)x-=(e.x-(innerWidth-82))/82;return{x,y}
+  if(e.x<82)x+=(82-e.x)/82;else if(e.x>g.worldWidth-82)x-=(e.x-(g.worldWidth-82))/82;return{x,y}
  }
  updateRootLatcher(e,dt){
   const g=this.game,p=g.player,pts=g.rootGrowth.points;if(!pts.length){e.y+=(g.scrollSpeed*.34+e.speed*.35)*dt;return}
   if(e.attached){const idx=Math.min(pts.length-1,e.anchorIndex||0),anchor=pts[idx];if(!anchor){g.enemies.release(e);return}e.x=anchor.x+Math.cos(g.time*7+e.phase)*3;e.y=anchor.y+Math.sin(g.time*6+e.phase)*3;e.drainTick=(e.drainTick||.45)-dt;if(e.drainTick<=0){e.drainTick=.65;p.carbon=Math.max(0,p.carbon-1);if(p.shield>0)p.shield=Math.max(0,p.shield-3);else p.health=Math.max(0,p.health-1);g.effects.resourceDrain(e.x,e.y,'#c4f36a');g.ui.damage('parasita aderido à raiz',1,Math.atan2(e.y-(p.y+p.height/2),e.x-(p.x+p.width/2)));if(p.health<=0)p.alive=false}return}
   let bestIdx=-1,best=1e9;for(let i=0;i<pts.length-18;i+=3){const pt=pts[i],d=Math.hypot(pt.x-e.x,pt.y-e.y);if(d<best){best=d;bestIdx=i}}
   if(bestIdx>=0&&best<210){const pt=pts[bestIdx],dx=pt.x-e.x,dy=pt.y-e.y,d=Math.max(1,Math.hypot(dx,dy));e.x+=dx/d*dt*132;e.y+=dy/d*dt*132;if(d<18){e.attached=true;e.anchorIndex=bestIdx;e.drainTick=.55;g.effects.ring(e.x,e.y,'#c4f36a',38,.28);return}}
-  else{const dx=p.x+p.width/2-e.x;e.x+=Math.sign(dx)*30*dt;e.y+=(g.scrollSpeed*.30+e.speed*.32)*dt}if(e.y>innerHeight+100)g.enemies.release(e)
+  else{const dx=p.x+p.width/2-e.x;e.x+=Math.sign(dx)*30*dt;e.y+=(g.scrollSpeed*.30+e.speed*.32)*dt}if(e.y>g.viewportHeight+100)g.enemies.release(e)
  }
  fire(e,vx,vy,color,kind){this.game.enemyProjectiles.acquire({x:e.x,y:e.y,vx,vy,radius:kind==='toxin'?5.5:kind==='iron'?5:4,color,kind,sourceType:e.type,life:4})}
 }
