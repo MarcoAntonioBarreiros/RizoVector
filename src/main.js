@@ -6,6 +6,7 @@ import{IntroSequence}from'./intro/IntroSequence.js';
 import'./intro/IntroBiologyPatch.js';
 import'./rendering/RootVisualPatch.js';
 import'./modes/RootDirectionTestPatch.js';
+import'./modes/OpeningTransitionPatch.js';
 
 const canvas=document.getElementById('game');
 const input=new InputManager;
