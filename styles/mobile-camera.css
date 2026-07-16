@@ -1,0 +1,50 @@
+/* Ajustes exclusivos para jogo em celular no modo retrato.
+   O viewport lógico maior reduz a interface sem comprometer os alvos de toque. */
+@media (pointer: coarse) and (orientation: portrait) {
+  .mobile-controls {
+    inset: auto 12px max(10px, env(safe-area-inset-bottom)) 12px;
+    gap: 7px;
+  }
+
+  .mobile-controls button {
+    min-height: 68px;
+    padding: 13px 3px;
+    font-size: 13px;
+    border-radius: 15px;
+  }
+
+  #uiToggle {
+    padding: 9px 17px;
+    font-size: 12px;
+  }
+
+  .ability-strip {
+    bottom: 86px;
+    gap: 5px;
+  }
+
+  .ability {
+    min-width: 84px;
+    padding: 5px 6px;
+  }
+
+  .ability.charged {
+    min-width: 102px;
+  }
+
+  .toast {
+    bottom: 150px;
+  }
+
+  .toast strong {
+    font-size: 15px;
+  }
+
+  .toast span {
+    font-size: 12px;
+  }
+
+  .zoom-panel {
+    display: none;
+  }
+}
