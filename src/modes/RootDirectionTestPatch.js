@@ -6,7 +6,8 @@ import{IntroSequence}from'../intro/IntroSequence.js';
 import{EnhancedRenderer}from'../rendering/EnhancedRenderer.js';
 
 const query=new URLSearchParams(location.search);
-const ROOT_DOWN=query.get('rootDirection')==='down';
+// Crescimento biologicamente natural é o padrão. A versão antiga permanece em ?rootDirection=up.
+const ROOT_DOWN=query.get('rootDirection')!=='up';
 
 if(ROOT_DOWN){
  document.documentElement.dataset.rootDirection='down';
@@ -16,6 +17,7 @@ if(ROOT_DOWN){
  const smoothstep=(a,b,value)=>{const t=clamp((value-a)/(b-a));return t*t*(3-2*t)};
  const easeOutCubic=t=>1-Math.pow(1-clamp(t),3);
  const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+ const TAU=Math.PI*2;
 
  /* Mantém seta, botão e gesto para baixo correspondendo ao movimento visual para baixo. */
  const axisY=Object.getOwnPropertyDescriptor(InputManager.prototype,'axisY');
@@ -27,8 +29,8 @@ if(ROOT_DOWN){
  }
 
  /*
-  * A física continua em suas coordenadas originais, mas a ponta passa a
-  * ocupar a metade inferior depois do espelhamento vertical do mundo.
+  * A física continua em suas coordenadas originais, mas a ponta ocupa a
+  * metade inferior depois do espelhamento vertical do mundo.
   */
  PlayerShip.prototype.update=function(dt,input,bounds,effects,status){
   const speed=CONFIG.player.speed*(status?.speedMultiplier||1);
@@ -101,9 +103,89 @@ if(ROOT_DOWN){
   this._drawWorld(c,time,germination,scene);
   c.restore();
 
-  // Passar zero remove também o arco gráfico que indicava a rotação.
+  // Zero remove também o arco gráfico que indicava a rotação.
   this._drawCinematicOverlay(c,time,zoomProgress,0);
   this._updateCaption(time);
+ };
+
+ /*
+  * Parte aérea da plântula ligada à extremidade mais antiga do eixo radicular.
+  * Ela aparece na transição e acompanha o deslocamento até sair naturalmente
+  * pelo topo da tela.
+  */
+ EnhancedRenderer.prototype.aerialShoot=function(c){
+  const points=this.game.rootGrowth?.points;
+  if(!points?.length)return;
+
+  let anchor=points[0];
+  for(const point of points)if(point.y>anchor.y)anchor=point;
+
+  const reveal=smoothstep(0,.55,this.game.time);
+  if(reveal<=0)return;
+
+  const x=anchor.x;
+  const baseY=anchor.y;
+  const cotyledonY=baseY+74*reveal;
+  const apexY=baseY+154*reveal;
+  const sway=Math.sin(this.game.time*1.45)*3.2;
+
+  c.save();
+  c.lineCap='round';
+  c.lineJoin='round';
+
+  // Colo e hipocótilo: transição contínua do bege radicular para o verde do caule.
+  const hypocotyl=c.createLinearGradient(x,baseY,x,cotyledonY);
+  hypocotyl.addColorStop(0,'rgba(220,204,168,.98)');
+  hypocotyl.addColorStop(.48,'rgba(186,190,126,.98)');
+  hypocotyl.addColorStop(1,'rgba(111,166,86,.98)');
+  c.strokeStyle=hypocotyl;
+  c.lineWidth=8;
+  c.beginPath();
+  c.moveTo(x,baseY);
+  c.bezierCurveTo(x-3,baseY+24,x+4+Math.sin(this.game.time*.8)*2,baseY+51,x+sway*.25,cotyledonY);
+  c.stroke();
+
+  // Dois cotilédones ainda carnosos, lembrando a semente que originou a plântula.
+  const cotyledonGradient=c.createRadialGradient(x-7,cotyledonY-3,2,x,cotyledonY,28);
+  cotyledonGradient.addColorStop(0,'#e0b46e');
+  cotyledonGradient.addColorStop(.55,'#b7783e');
+  cotyledonGradient.addColorStop(1,'#71431f');
+  c.fillStyle=cotyledonGradient;
+  c.save();c.translate(x-13,cotyledonY);c.rotate(-.28);c.beginPath();c.ellipse(0,0,21,10,0,0,TAU);c.fill();c.restore();
+  c.save();c.translate(x+13,cotyledonY);c.rotate(.28);c.beginPath();c.ellipse(0,0,21,10,0,0,TAU);c.fill();c.restore();
+
+  // Epicótilo e gema apical.
+  const stem=c.createLinearGradient(x,cotyledonY,x,apexY);
+  stem.addColorStop(0,'#6eaa58');
+  stem.addColorStop(1,'#98cf70');
+  c.strokeStyle=stem;
+  c.lineWidth=5.5;
+  c.beginPath();
+  c.moveTo(x+sway*.25,cotyledonY-3);
+  c.bezierCurveTo(x-2,cotyledonY+27,x+5+sway*.5,cotyledonY+51,x+sway,apexY);
+  c.stroke();
+
+  const leaf=(side,offset,scale)=>{
+   const y=apexY-offset;
+   const tipX=x+side*(32+scale*8)+sway;
+   c.fillStyle=side<0?'#79b95d':'#8bc96a';
+   c.beginPath();
+   c.moveTo(x+sway,y);
+   c.bezierCurveTo(x+side*13,y-13*scale,tipX-side*7,y-11*scale,tipX,y);
+   c.bezierCurveTo(tipX-side*9,y+13*scale,x+side*10,y+13*scale,x+sway,y);
+   c.closePath();
+   c.fill();
+   c.strokeStyle='rgba(221,246,190,.28)';
+   c.lineWidth=1;
+   c.beginPath();c.moveTo(x+sway,y);c.lineTo(tipX,y);c.stroke();
+  };
+
+  leaf(-1,20,1);
+  leaf(1,5,.86);
+  c.fillStyle='#b5dc83';
+  c.beginPath();c.ellipse(x+sway,apexY+2,6,10,0,0,TAU);c.fill();
+
+  c.restore();
  };
 
  /*
@@ -143,6 +225,7 @@ if(ROOT_DOWN){
    for(const segment of g.segmentManager.segments)this.segment(c,segment);
    g.flow?.render(c,this.width,screenHeight/scale+180);
    this.rootBody(c);
+   this.aerialShoot(c);
    g.channels.forEachActive(item=>this.channel(c,item));
    g.barriers.forEachActive(item=>this.fungalBarrier(c,item));
    g.obstacles.forEachActive(item=>this.obstacle(c,item));
@@ -171,5 +254,5 @@ if(ROOT_DOWN){
   c.fillStyle=vignette;c.fillRect(0,0,screenWidth,screenHeight);
  };
 
- console.info('RizoVetor: modo de teste com crescimento radicular para baixo ativo.');
+ console.info('RizoVetor: crescimento radicular para baixo ativo como orientação padrão.');
 }
