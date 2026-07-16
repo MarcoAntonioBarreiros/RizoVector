@@ -54,3 +54,23 @@ button{border:1px solid #ffffff18;border-radius:13px;padding:11px 15px;margin:5p
 .toast span{display:block;max-width:680px;margin:4px auto 0;font-size:10px;font-weight:650;line-height:1.38;color:#d6efe3;text-shadow:0 1px 5px #00120d,0 0 12px #7fd2ff66}
 @media(max-width:900px){.toast{bottom:88px;width:calc(100% - 24px)}.toast strong{font-size:11px}.toast span{font-size:9px}}
 @media(pointer:coarse){.toast{bottom:116px}}
+/* Limita a altura do painel e cria rolagem interna */
+.panel {
+  max-height: 85vh; /* O painel ocupará no máximo 85% da altura da tela (Viewport Height) */
+  overflow-y: auto; /* Ativa a rolagem vertical automaticamente caso o conteúdo ultrapasse o tamanho */
+  overflow-x: hidden; /* Previne rolagens horizontais indesejadas */
+}
+
+/* Opcional: Garante que os botões no final tenham um espaço extra ao rolar até o fim */
+.intro-panel {
+  padding-bottom: 24px; 
+}
+
+/* Otimização para a barra de rolagem ficar mais elegante em navegadores Webkit (Chrome/Safari) */
+.panel::-webkit-scrollbar {
+  width: 6px;
+}
+.panel::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
