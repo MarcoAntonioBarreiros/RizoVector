@@ -39,7 +39,7 @@ export class MicrobeSystem{
     g.enemies.forEachActive(e=>{const ax=o.x-e.x,ay=o.y-e.y,ad=Math.hypot(ax,ay),r=(e.radius||18)+78;if(ad>0&&ad<r){const f=(r-ad)/r;vx+=ax/ad*max*f*1.9;vy+=ay/ad*max*f*1.9}});
     const phase=o.swarmPhase??o.phase??0;vx+=Math.sin(g.time*.8+phase)*max*.16;vy+=Math.cos(g.time*.63+phase*1.3)*max*.09;const speed=Math.hypot(vx,vy);if(speed>max){vx=vx/speed*max;vy=vy/speed*max}o.swarmTargetVX=vx;o.swarmTargetVY=vy
    }
-   o.swarmVX=(o.swarmVX||0)+((o.swarmTargetVX||0)-(o.swarmVX||0))*Math.min(1,dt*4.5);o.swarmVY=(o.swarmVY||0)+((o.swarmTargetVY||0)-(o.swarmVY||0))*Math.min(1,dt*4.5);o.x=clamp(o.x+o.swarmVX*dt,28,innerWidth-28);o.y+=o.swarmVY*dt
+   o.swarmVX=(o.swarmVX||0)+((o.swarmTargetVX||0)-(o.swarmVX||0))*Math.min(1,dt*4.5);o.swarmVY=(o.swarmVY||0)+((o.swarmTargetVY||0)-(o.swarmVY||0))*Math.min(1,dt*4.5);o.x=clamp(o.x+o.swarmVX*dt,28,g.worldWidth-28);o.y+=o.swarmVY*dt
   }
  }
  swarmTarget(o){
