@@ -74,3 +74,20 @@ button{border:1px solid #ffffff18;border-radius:13px;padding:11px 15px;margin:5p
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
 }
+/* Força o Canvas a respeitar as bordas da tela, contendo o DPR excessivo */
+#game {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  touch-action: none !important; /* Bloqueia zoom de pinça e toques duplos acidentais na área do jogo */
+}
+
+/* Remove o efeito elástico e bloqueia o 'pull-to-refresh' (puxar para atualizar) do navegador mobile */
+body, html {
+  overscroll-behavior: none !important;
+}
+
+/* Garante que o painel de texto não herde o bloqueio e mantenha a rolagem vertical que arrumamos */
+.panel {
+  touch-action: pan-y !important;
+}
