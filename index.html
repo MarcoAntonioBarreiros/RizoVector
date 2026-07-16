@@ -2,11 +2,33 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta id="gameViewport" name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <script>
+    (() => {
+      const viewport = document.getElementById('gameViewport');
+      const portrait = matchMedia('(orientation: portrait)');
+      const coarsePointer = matchMedia('(pointer: coarse)');
+
+      const updateViewport = () => {
+        const mobilePortrait = portrait.matches && coarsePointer.matches;
+        viewport.setAttribute(
+          'content',
+          mobilePortrait
+            ? 'width=500,initial-scale=1,maximum-scale=1,user-scalable=no'
+            : 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'
+        );
+      };
+
+      updateViewport();
+      portrait.addEventListener?.('change', updateViewport);
+      coarsePointer.addEventListener?.('change', updateViewport);
+    })();
+  </script>
   <meta name="theme-color" content="#0a120d">
   <title>RizoVetor — Raiz Viva v3.9 · cardume</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./styles/mobile-camera.css">
 </head>
 <body>
 <main id="app">
