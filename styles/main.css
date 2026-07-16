@@ -74,20 +74,36 @@ button{border:1px solid #ffffff18;border-radius:13px;padding:11px 15px;margin:5p
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
 }
-/* Força o Canvas a respeitar as bordas da tela, contendo o DPR excessivo */
+/* Limita a altura do painel e cria rolagem interna */
+.panel {
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  touch-action: pan-y !important;
+}
+
+.intro-panel {
+  padding-bottom: 24px;
+}
+
+.panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.panel::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+/* Força o Canvas a respeitar as bordas da tela e remove zoom excessivo */
 #game {
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover;
-  touch-action: none !important; /* Bloqueia zoom de pinça e toques duplos acidentais na área do jogo */
+  object-fit: contain !important;
+  touch-action: none !important;
 }
 
-/* Remove o efeito elástico e bloqueia o 'pull-to-refresh' (puxar para atualizar) do navegador mobile */
+/* Remove o efeito elástico e bloqueia o pull-to-refresh mobile */
 body, html {
   overscroll-behavior: none !important;
-}
-
-/* Garante que o painel de texto não herde o bloqueio e mantenha a rolagem vertical que arrumamos */
-.panel {
-  touch-action: pan-y !important;
 }
