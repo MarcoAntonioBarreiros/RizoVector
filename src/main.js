@@ -5,6 +5,7 @@ import{EnhancedRenderer}from'./rendering/EnhancedRenderer.js';
 import{IntroSequence}from'./intro/IntroSequence.js';
 import'./intro/IntroBiologyPatch.js';
 import'./rendering/RootVisualPatch.js';
+import'./modes/RootDirectionTestPatch.js';
 
 const canvas=document.getElementById('game');
 const input=new InputManager;
