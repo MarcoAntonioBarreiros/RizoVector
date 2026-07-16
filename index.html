@@ -29,10 +29,20 @@
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./styles/main.css">
   <link rel="stylesheet" href="./styles/mobile-camera.css">
+  <link rel="stylesheet" href="./styles/germination-intro.css">
 </head>
 <body>
 <main id="app">
   <canvas id="game" aria-label="RizoVetor, raiz viva crescendo na rizosfera"></canvas>
+
+  <section id="germinationIntro" class="germination-intro" aria-hidden="true" aria-label="Animação da germinação de uma semente de feijão">
+    <canvas id="germinationCanvas" aria-hidden="true"></canvas>
+    <div class="germination-copy" aria-live="polite">
+      <span id="germinationEyebrow">CICLO DO FEIJOEIRO</span>
+      <strong id="germinationCaption">Uma semente repousa no solo.</strong>
+    </div>
+    <button id="skipIntroButton" class="intro-skip" type="button">Pular animação</button>
+  </section>
 
   <button id="uiToggle" title="Ocultar/mostrar interface (H)" aria-label="Alternar interface">⊟ HUD</button>
 
