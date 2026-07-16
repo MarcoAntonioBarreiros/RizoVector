@@ -17,7 +17,7 @@ export class FlowSystem{
   const g=this.game;
   g.enemies.forEachActive(e=>{
    if(e.attached)return;const mobility=ENEMY_MOBILITY[e.type]||72,phase=(e.phase||0)+(e.seed||0)*11,field=this.fieldAt(e.x,e.y,phase),dir=this.hashDirection(e.groupId??e.seed??e.type),cycle=.38+.62*(.5+.5*Math.sin(this.time*.24+phase)),vertical=field.y*mobility+dir*mobility*.72*cycle,horizontal=field.x*mobility+Math.sin(this.time*.86+phase)*mobility*.24;
-   const ox=e.x,oy=e.y;e.x=clamp(e.x+horizontal*dt,18,innerWidth-18);e.y+=vertical*dt;e.vx=(e.vx||0)+(e.x-ox)/Math.max(dt,1e-4);e.vy=(e.vy||0)+(e.y-oy)/Math.max(dt,1e-4)
+   const ox=e.x,oy=e.y;e.x=clamp(e.x+horizontal*dt,18,g.worldWidth-18);e.y+=vertical*dt;e.vx=(e.vx||0)+(e.x-ox)/Math.max(dt,1e-4);e.vy=(e.vy||0)+(e.y-oy)/Math.max(dt,1e-4)
   })
  }
  movePickups(dt){
@@ -31,15 +31,15 @@ export class FlowSystem{
     o.flowTargetVX=field.x*mobility+Math.sin(this.time*.93+phase)*mobility*.22;
     o.flowTargetVY=field.y*mobility+dir*mobility*.58*cycle;
     if(o.y<90)o.flowTargetVY+=(90-o.y)*1.6;
-    else if(o.y>innerHeight-90)o.flowTargetVY-=(o.y-(innerHeight-90))*1.6
+    else if(o.y>g.viewportHeight-90)o.flowTargetVY-=(o.y-(g.viewportHeight-90))*1.6
    }else{
     const mobility=RESOURCE_MOBILITY[o.type]||82,bias=RESOURCE_BIAS[o.type]||0,dir=this.hashDirection(`${o.type}:${phase.toFixed(2)}`);
     o.flowTargetVX=field.x*mobility+Math.sin(this.time*1.12+phase)*mobility*.18;
     o.flowTargetVY=field.y*mobility+bias+dir*mobility*.16*Math.sin(this.time*.34+phase);
     if(o.y<45)o.flowTargetVY+=(45-o.y)*.7;
-    else if(o.y>innerHeight-55)o.flowTargetVY-=(o.y-(innerHeight-55))*.7
+    else if(o.y>g.viewportHeight-55)o.flowTargetVY-=(o.y-(g.viewportHeight-55))*.7
    }
-   const response=o.kind==='microbe'?4.4:3.2;o.flowVX=(o.flowVX||0)+((o.flowTargetVX||0)-(o.flowVX||0))*Math.min(1,dt*response);o.flowVY=(o.flowVY||0)+((o.flowTargetVY||0)-(o.flowVY||0))*Math.min(1,dt*response);o.x=clamp(o.x+o.flowVX*dt,22,innerWidth-22);o.y+=o.flowVY*dt;o.flowAge=(o.flowAge||0)+dt
+   const response=o.kind==='microbe'?4.4:3.2;o.flowVX=(o.flowVX||0)+((o.flowTargetVX||0)-(o.flowVX||0))*Math.min(1,dt*response);o.flowVY=(o.flowVY||0)+((o.flowTargetVY||0)-(o.flowVY||0))*Math.min(1,dt*response);o.x=clamp(o.x+o.flowVX*dt,22,g.worldWidth-22);o.y+=o.flowVY*dt;o.flowAge=(o.flowAge||0)+dt
   })
  }
  render(c,width,height){
