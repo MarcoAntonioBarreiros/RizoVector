@@ -1,6 +1,41 @@
 import{Renderer}from'./Renderer.js';
 const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export class EnhancedRenderer extends Renderer{
+ render(){
+  const c=this.ctx,g=this.game,screenWidth=this.width,screenHeight=this.height;
+  c.setTransform(this.dpr,0,0,this.dpr,0,0);
+  this.background(c);
+  if(!g.segmentManager)return;
+
+  c.save();
+  const scale=g.viewScale||1,anchorY=screenHeight*.74,cameraX=g.cameraX||0;
+  c.translate(0,anchorY);
+  c.scale(scale,scale);
+  c.translate(-cameraX,-anchorY);
+  const shake=g.shake||0;
+  if(shake)c.translate((Math.random()*2-1)*shake,(Math.random()*2-1)*shake);
+
+  const originalWidth=this.width;
+  this.width=g.worldWidth||screenWidth;
+  for(const s of g.segmentManager.segments)this.segment(c,s);
+  g.flow?.render(c,this.width,screenHeight/scale+180);
+  this.rootBody(c);
+  g.channels.forEachActive(x=>this.channel(c,x));
+  g.barriers.forEachActive(x=>this.fungalBarrier(c,x));
+  g.obstacles.forEachActive(x=>this.obstacle(c,x));
+  g.pickups.forEachActive(x=>this.pickup(c,x));
+  g.enemies.forEachActive(x=>this.enemy(c,x));
+  g.enemyProjectiles.forEachActive(x=>this.enemyProjectile(c,x));
+  g.projectiles.forEachActive(x=>this.projectile(c,x));
+  this.player(c,g.player);
+  g.particles.forEachActive(x=>this.particle(c,x));
+  this.width=originalWidth;
+  c.restore();
+
+  if(g.screenFlash>0){c.fillStyle=`rgba(213,180,255,${g.screenFlash*.48})`;c.fillRect(0,0,screenWidth,screenHeight)}
+  if(g.hitFlash>0){const hg=c.createRadialGradient(screenWidth/2,screenHeight/2,screenHeight*.25,screenWidth/2,screenHeight/2,Math.max(screenWidth,screenHeight)*.72);hg.addColorStop(.55,'#0000');hg.addColorStop(1,`rgba(255,60,82,${g.hitFlash*.38})`);c.fillStyle=hg;c.fillRect(0,0,screenWidth,screenHeight)}
+  const v=c.createRadialGradient(screenWidth/2,screenHeight/2,screenHeight*.16,screenWidth/2,screenHeight/2,Math.max(screenWidth,screenHeight)*.75);v.addColorStop(.55,'#0000');v.addColorStop(1,'#000c');c.fillStyle=v;c.fillRect(0,0,screenWidth,screenHeight)
+ }
  player(c,p){
   if(this.game.player.channelActive){
    const x=p.x+p.width/2,y=p.y+p.height/2,t=this.game.time,spr=this.spriteFor('#7fd2ff'),pulse=1+Math.sin(t*12)*.09,rr=58*pulse;
